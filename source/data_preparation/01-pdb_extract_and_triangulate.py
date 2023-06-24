@@ -24,15 +24,16 @@ from triangulation.compute_normal import compute_normal
 from sklearn.neighbors import KDTree
 
 if len(sys.argv) <= 1: 
-    print("Usage: {config} "+sys.argv[0]+" PDBID_A")
-    print("A or AB are the chains to include in this surface.")
-    sys.exit(1)
+    in_fields = "1MBN_A_".split("_")
+    pdb_id = in_fields[0]
+    chain_ids1 = in_fields[1]
+else:
+    # Save the chains as separate files. 
+    in_fields = sys.argv[1].split("_")
+    pdb_id = in_fields[0]
+    chain_ids1 = in_fields[1]    
 
 
-# Save the chains as separate files. 
-in_fields = sys.argv[1].split("_")
-pdb_id = in_fields[0]
-chain_ids1 = in_fields[1]
 
 if (len(sys.argv)>2) and (sys.argv[2]=='masif_ligand'):
     pdb_filename = os.path.join(masif_opts["ligand"]["assembly_dir"],pdb_id+".pdb")
@@ -48,11 +49,8 @@ out_filename1 = tmp_dir+"/"+pdb_id+"_"+chain_ids1
 extractPDB(pdb_filename, out_filename1+".pdb", chain_ids1)
 
 # Compute MSMS of surface w/hydrogens, 
-try:
-    vertices1, faces1, normals1, names1, areas1 = computeMSMS(out_filename1+".pdb",\
-        protonate=True)
-except:
-    set_trace()
+vertices1, faces1, normals1, names1, areas1 = computeMSMS(out_filename1+".pdb",\
+    protonate=True)
 
 # Compute "charged" vertices
 if masif_opts['use_hbond']:

@@ -33,7 +33,7 @@ def extractPDB(
     infilename, outfilename, chain_ids=None 
 ):
     # extract the chain_ids from infilename and save in outfilename. 
-    parser = PDBParser(QUIET=True)
+    parser = PDBParser(QUIET=False)
     struct = parser.get_structure(infilename, infilename)
     model = Selection.unfold_entities(struct, "M")[0]
     chains = Selection.unfold_entities(struct, "C")

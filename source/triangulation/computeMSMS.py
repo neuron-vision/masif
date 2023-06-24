@@ -6,6 +6,7 @@ from triangulation.xyzrn import output_pdb_as_xyzrn
 from default_config.global_vars import msms_bin 
 from default_config.masif_opts import masif_opts
 import random
+import sys
 
 # Pablo Gainza LPDI EPFL 2017-2019
 # Calls MSMS and returns the vertices.
