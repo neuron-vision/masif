@@ -7,7 +7,7 @@
 #SBATCH --partition=serial
 
 source /work/upcorreia/bin/load_masif_environment.sh
-masif_root=$(git rev-parse --show-toplevel)
+masif_root=/masif
 masif_source=$masif_root/source/
 masif_matlab=$masif_root/source/matlab_libs/
 export PYTHONPATH=$PYTHONPATH:$masif_source

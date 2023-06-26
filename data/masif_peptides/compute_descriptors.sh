@@ -1,4 +1,4 @@
-masif_root=$(git rev-parse --show-toplevel)
+masif_root=/masif
 masif_source=$masif_root/source/
 masif_data=$masif_root/data/
 source /work/upcorreia/bin/load_masif_environment.sh

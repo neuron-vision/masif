@@ -12,7 +12,7 @@ module purge
 source /work/upcorreia/bin/load_masif_environment_gpu.sh
 export MONET_DIR=/home/gainza/lpdi_fs/seednet/monet_seeder/
 export PYTHONPATH=$PYTHONPATH:$MONET_DIR:./
-masif_root=$(git rev-parse --show-toplevel)
+masif_root=/masif
 masif_source=$masif_root/source/
 masif_matlab=$masif_root/source/matlab_libs/
 export PYTHONPATH=$PYTHONPATH:$masif_source
