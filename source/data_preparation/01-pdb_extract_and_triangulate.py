@@ -22,6 +22,8 @@ from triangulation.computeCharges import computeCharges, assignChargesToNewMesh
 from triangulation.computeAPBS import computeAPBS
 from triangulation.compute_normal import compute_normal
 from sklearn.neighbors import KDTree
+from pathlib import Path as _P
+
 
 if len(sys.argv) <= 1: 
     in_fields = "1MBN_A_".split("_")
@@ -84,38 +86,43 @@ if masif_opts['use_hphob']:
 if masif_opts['use_apbs']:
     vertex_charges = computeAPBS(regular_mesh.vertices, out_filename1+".pdb", out_filename1)
 
-iface = np.zeros(len(regular_mesh.vertices))
-if 'compute_iface' in masif_opts and masif_opts['compute_iface']:
-    # Compute the surface of the entire complex and from that compute the interface.
-    v3, f3, _, _, _ = computeMSMS(pdb_filename,\
-        protonate=True)
-    # Regularize the mesh
-    mesh = pymesh.form_mesh(v3, f3)
-    # I believe It is not necessary to regularize the full mesh. This can speed up things by a lot.
-    full_regular_mesh = mesh
-    # Find the vertices that are in the iface.
-    v3 = full_regular_mesh.vertices
-    # Find the distance between every vertex in regular_mesh.vertices and those in the full complex.
-    kdt = KDTree(v3)
-    d, r = kdt.query(regular_mesh.vertices)
-    d = np.square(d) # Square d, because this is how it was in the pyflann version.
-    assert(len(d) == len(regular_mesh.vertices))
-    iface_v = np.where(d >= 2.0)[0]
-    iface[iface_v] = 1.0
-    # Convert to ply and save.
-    save_ply(out_filename1+".ply", regular_mesh.vertices,\
-                        regular_mesh.faces, normals=vertex_normal, charges=vertex_charges,\
-                        normalize_charges=True, hbond=vertex_hbond, hphob=vertex_hphobicity,\
-                        iface=iface)
 
+ply_ouy_file = _P(out_filename1+".ply")
+if ply_ouy_file.exists():
+    print("Skipping ply file %s"%ply_ouy_file)
 else:
-    # Convert to ply and save.
-    save_ply(out_filename1+".ply", regular_mesh.vertices,\
-                        regular_mesh.faces, normals=vertex_normal, charges=vertex_charges,\
-                        normalize_charges=True, hbond=vertex_hbond, hphob=vertex_hphobicity)
-if not os.path.exists(masif_opts['ply_chain_dir']):
-    os.makedirs(masif_opts['ply_chain_dir'])
-if not os.path.exists(masif_opts['pdb_chain_dir']):
-    os.makedirs(masif_opts['pdb_chain_dir'])
+    iface = np.zeros(len(regular_mesh.vertices))
+    if 'compute_iface' in masif_opts and masif_opts['compute_iface']:
+        # Compute the surface of the entire complex and from that compute the interface.
+        v3, f3, _, _, _ = computeMSMS(pdb_filename,\
+            protonate=True)
+        # Regularize the mesh
+        mesh = pymesh.form_mesh(v3, f3)
+        # I believe It is not necessary to regularize the full mesh. This can speed up things by a lot.
+        full_regular_mesh = mesh
+        # Find the vertices that are in the iface.
+        v3 = full_regular_mesh.vertices
+        # Find the distance between every vertex in regular_mesh.vertices and those in the full complex.
+        kdt = KDTree(v3)
+        d, r = kdt.query(regular_mesh.vertices)
+        d = np.square(d) # Square d, because this is how it was in the pyflann version.
+        assert(len(d) == len(regular_mesh.vertices))
+        iface_v = np.where(d >= 2.0)[0]
+        iface[iface_v] = 1.0
+        # Convert to ply and save.
+        save_ply(out_filename1+".ply", regular_mesh.vertices,\
+                            regular_mesh.faces, normals=vertex_normal, charges=vertex_charges,\
+                            normalize_charges=True, hbond=vertex_hbond, hphob=vertex_hphobicity,\
+                            iface=iface)
+
+    else:
+        # Convert to ply and save.
+        save_ply(out_filename1+".ply", regular_mesh.vertices,\
+                            regular_mesh.faces, normals=vertex_normal, charges=vertex_charges,\
+                            normalize_charges=True, hbond=vertex_hbond, hphob=vertex_hphobicity)
+    if not os.path.exists(masif_opts['ply_chain_dir']):
+        os.makedirs(masif_opts['ply_chain_dir'])
+    if not os.path.exists(masif_opts['pdb_chain_dir']):
+        os.makedirs(masif_opts['pdb_chain_dir'])
 shutil.copy(out_filename1+'.ply', masif_opts['ply_chain_dir']) 
 shutil.copy(out_filename1+'.pdb', masif_opts['pdb_chain_dir']) 
